@@ -1,13 +1,14 @@
 import streamlit as st
 from dotenv import load_dotenv
-import google.generativeai as genai
+from google import genai as genai
 import os
 from youtube_transcript_api import YouTubeTranscriptApi, VideoUnavailable, TranscriptsDisabled
 from urllib.parse import urlparse, parse_qs
 
 # Load environment variables
 load_dotenv()
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+api_key=os.getenv("GOOGLE_API_KEY")
+client = genai.Client(api_key=api_key)
 
 # Prompt for Gemini
 prompt = """Analyze the provided YouTube transcript and extract the most valuable information into a structured, scannable summary under 250 words.
@@ -32,6 +33,8 @@ Processing Instructions:
 4. Preserve specific data points (numbers, percentages, dates)
 5. Eliminate transcript artifacts (filler words, repetitions, "um," "uh")
 6. Focus on "what the viewer should know/do after watching"
+
+also use emoji
 
 Transcript to summarize: """
 
@@ -64,15 +67,13 @@ def transcriber(yt_url):
 
 # Generate summary using Gemini
 def geminiContentGenerator(transcript_text, prompt):
-    model = genai.GenerativeModel("models/gemini-pro")
-    response = model.generate_content(prompt + transcript_text)
+    response = response = client.models.generate_content(model="gemini-2.0-flash", contents=prompt + transcript_text)
     return response.text
 
 # Streamlit
 st.set_page_config(
     page_title="YouTube Video Summarizer",
-    page_icon="📺",
-    layout="wide"
+    page_icon="📺"
 )
 
 st.title("📺 YouTube Video Summarizer")
@@ -83,7 +84,7 @@ yt_link = st.text_input("Enter YouTube Video Link Here:")
 if yt_link:
     video_id = extract_video_id(yt_link)
     if video_id:
-        st.image(f"http://img.youtube.com/vi/{video_id}/0.jpg", use_container_width=True)
+        st.image(f"http://img.youtube.com/vi/{video_id}/0.jpg", use_column_width=True)
     else:
         st.warning("⚠️ Please enter a valid YouTube link.")
 
@@ -122,3 +123,18 @@ if st.button("🚀 Generate Summary", type="primary"):
             # Display summary
             st.markdown("## 📋 Summary")
             st.markdown(summary)
+
+# Sidebar
+with st.sidebar:
+    st.markdown("### 💡 Tips")
+    st.markdown("• Works best with videos that have captions")
+    st.markdown("• Educational content gets better summaries")
+
+    st.markdown("### 🔧 Features")
+    st.markdown("• AI-powered summaries")
+    st.markdown("• Multiple URL formats supported")
+    st.markdown("• Structured output format")
+
+    st.markdown("### ⚠️ Limitations")
+    st.markdown("• Requires video captions/transcripts")
+    st.markdown("• May not work with private videos")
