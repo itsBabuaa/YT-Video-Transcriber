@@ -3,3 +3,4 @@ streamlit
 google-genai
 python-dotenv
 pathlib
+urllib
