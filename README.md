@@ -28,7 +28,7 @@ A Streamlit web app that extracts transcripts from YouTube videos and generates 
 
 - Python  
 - Streamlit  
-- Google Gemini API (`google.generativeai`)  
+- Google Gemini API (`google.genai`)  
 - youtube-transcript-api  
 - dotenv  
 - urllib  
